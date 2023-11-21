@@ -253,25 +253,13 @@ read_raw_kreport = function(kreport_path){
 #函数描述：
 ##检查删除完之后剩余物种的父节点是否存在，如果不存在在后续bracken定量的时候会报错。
 #参数：
-##cell_line_result - 输入原始krakenunique report的路径
-##hierarchy_df - taxDB
-##parent_mapping - 映射节点层级关系
+##cell_line_result - 09文件夹里的结果文件，以样本为单位的。
 #返回值：
-##一个列表，如果是0则代表该样本没有问题
-check_parent_node = function(cell_line_result,hierarchy_df,parent_mapping){
-  #cell_line_result <- cell_line_result_list[[1]]
-  m = 0
-  for (n in nrow(cell_line_result):1){
-    n = nrow(cell_line_result)
-    child_id <- cell_line_result$taxID[[n]]
-    parent_id <- parent_mapping[as.character(child_id)]
-    if (!parent_id == 1){
-      parent_row <- which(cell_line_result$taxID == parent_id)
-      if (!length(parent_row)>0){
-        print(paste0("child_node ",child_id,"'s parent taxid",parent_id,"not in the sample",sample_name))
-        m = m+1
-        } 
-      }
-  }
-  return(m)
-  }
+##新增列，如果是F则代表有问题，如果是T则是无问题
+check_parent_node = function(check_file){
+  checked_file <- check_file %>% 
+    mutate(pass_check = ifelse(parent_mapping[as.character(taxID)] %in% check_file$taxID,T,F) )
+  checked_file$pass_check[1:2] <- T
+   return(checked_file)
+}
+
