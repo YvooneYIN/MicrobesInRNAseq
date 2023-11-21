@@ -237,11 +237,11 @@ for (i in 1:Nsample){
                                                     study_level_filted_result$name %in% correlation_filted_results$filtered$name),]$taxid,]
   cell_line_result_list[[sample_name]] <- raw_kreport_list[[sample_name]][raw_kreport_list[[sample_name]]$taxID %in% study_level_filted_result[which(study_level_filted_result$sample == sample_name &
                                                                             study_level_filted_result$name %in% retain_results_list$name),]$taxid,]
-  #write.table(unique_kmer_result_list[[sample_name]],paste0(output_unique_kmer,"/",sample_name,'_unique_kmer_filted.txt'),quote = F,row.names = F,sep = '\t')
-  #write.table(total_kmer_result_list[[sample_name]],paste0(output_total_kmer,"/",sample_name,'_total_kmer_filted.txt'),quote = F,row.names = F,sep = '\t')
-  #write.table(study_level_result_list[[sample_name]],paste0(output_study_level,"/",sample_name,'_study_level_filted.txt'),quote = F,row.names = F,sep = '\t')
-  #write.table(correlation_result_list[[sample_name]],paste0(output_correlation,"/",sample_name,'_correlation_spearman_filted.txt'),quote = F,row.names = F,sep = '\t')
-  #write.table(cell_line_result_list[[sample_name]],paste0(output_cell_line_quantative,"/",sample_name,'_cell_line_filted.kreport'),quote = F,row.names = F,sep = '\t')
+  write.table(unique_kmer_result_list[[sample_name]],paste0(output_unique_kmer,"/",sample_name,'_unique_kmer_filted.txt'),quote = F,row.names = F,sep = '\t')
+  write.table(total_kmer_result_list[[sample_name]],paste0(output_total_kmer,"/",sample_name,'_total_kmer_filted.txt'),quote = F,row.names = F,sep = '\t')
+  write.table(study_level_result_list[[sample_name]],paste0(output_study_level,"/",sample_name,'_study_level_filted.txt'),quote = F,row.names = F,sep = '\t')
+  write.table(correlation_result_list[[sample_name]],paste0(output_correlation,"/",sample_name,'_correlation_spearman_filted.txt'),quote = F,row.names = F,sep = '\t')
+  write.table(cell_line_result_list[[sample_name]],paste0(output_cell_line_quantative,"/",sample_name,'_cell_line_filted.kreport'),quote = F,row.names = F,sep = '\t')
   
   pass_decontaminate_statistics[i,"raw_taxonomies"] <- nrow(single_kreport[[sample_name]])
   pass_decontaminate_statistics[i,"unique_kmer_passed"] <- length(which(unique_kmer_filted_result_combined$sample == sample_name))
