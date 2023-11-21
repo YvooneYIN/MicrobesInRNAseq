@@ -30,9 +30,9 @@ opt <- parse_args(opt_parser)
 script_path <- opt$script_path
 #script_path <- "/Users/yinwen/myfiles/Projects/2NAFLD/0.2Decontamination"
 kreport_path <- opt$input_kreport_path
-#kreport_path <- "/Users/yinwen/myfiles/Projects/2NAFLD/0.1KrakenUniqOutput/78PRJNA542148/unpaired"
+#kreport_path <- "/Users/yinwen/myfiles/Projects/2NAFLD/0.1KrakenUniqOutput/117PRJNA682622"
 study <- opt$study_name
-#study <- 'PRJNA542148'
+#study <- 'PRJNA682622'
 unique_kmer_threshold <- opt$unique_kmer_threshold
 #unique_kmer_threshold <- 1000
 fold_threshold <- opt$fold_threshold
@@ -237,11 +237,11 @@ for (i in 1:Nsample){
                                                     study_level_filted_result$name %in% correlation_filted_results$filtered$name),]$taxid,]
   cell_line_result_list[[sample_name]] <- raw_kreport_list[[sample_name]][raw_kreport_list[[sample_name]]$taxID %in% study_level_filted_result[which(study_level_filted_result$sample == sample_name &
                                                                             study_level_filted_result$name %in% retain_results_list$name),]$taxid,]
-  write.table(unique_kmer_result_list[[sample_name]],paste0(output_unique_kmer,"/",sample_name,'_unique_kmer_filted.txt'),quote = F,row.names = F,sep = '\t')
-  write.table(total_kmer_result_list[[sample_name]],paste0(output_total_kmer,"/",sample_name,'_total_kmer_filted.txt'),quote = F,row.names = F,sep = '\t')
-  write.table(study_level_result_list[[sample_name]],paste0(output_study_level,"/",sample_name,'_study_level_filted.txt'),quote = F,row.names = F,sep = '\t')
-  write.table(correlation_result_list[[sample_name]],paste0(output_correlation,"/",sample_name,'_correlation_spearman_filted.txt'),quote = F,row.names = F,sep = '\t')
-  write.table(cell_line_result_list[[sample_name]],paste0(output_sample_result,"/",sample_name,'_filted.kreport'),quote = F,row.names = F,sep = '\t')
+  #write.table(unique_kmer_result_list[[sample_name]],paste0(output_unique_kmer,"/",sample_name,'_unique_kmer_filted.txt'),quote = F,row.names = F,sep = '\t')
+  #write.table(total_kmer_result_list[[sample_name]],paste0(output_total_kmer,"/",sample_name,'_total_kmer_filted.txt'),quote = F,row.names = F,sep = '\t')
+  #write.table(study_level_result_list[[sample_name]],paste0(output_study_level,"/",sample_name,'_study_level_filted.txt'),quote = F,row.names = F,sep = '\t')
+  #write.table(correlation_result_list[[sample_name]],paste0(output_correlation,"/",sample_name,'_correlation_spearman_filted.txt'),quote = F,row.names = F,sep = '\t')
+  #write.table(cell_line_result_list[[sample_name]],paste0(output_cell_line_quantative,"/",sample_name,'_cell_line_filted.kreport'),quote = F,row.names = F,sep = '\t')
   
   pass_decontaminate_statistics[i,"raw_taxonomies"] <- nrow(single_kreport[[sample_name]])
   pass_decontaminate_statistics[i,"unique_kmer_passed"] <- length(which(unique_kmer_filted_result_combined$sample == sample_name))
@@ -253,7 +253,7 @@ for (i in 1:Nsample){
                                                                         study_level_filted_result$name %in% retain_results_list$name))
 }
 
-write.table(pass_decontaminate_statistics,paste0(output_path,"/",study,"/decontamination_statistic.txt"),sep = '\t')
+
 ###step7: check######
 taxDB <- read.table(paste0(script_path,"/taxDB"),sep = "\t",fill = T,header = F,quote = "")
 #remove the line which child and parent line are both 1 to avoid endless loop
@@ -262,11 +262,21 @@ hierarchy_df <- taxDB[taxDB$V3 != 'root',]
 colnames(hierarchy_df)[1:2] <- c("Child","Parent")
 parent_mapping <- setNames(hierarchy_df$Parent, hierarchy_df$Child)
 
-check <- lapply(cell_line_result_list, function (x) check_parent_node(x,hierarchy_df,parent_mapping))
 
-if (sum(unlink(check)) ==0){
-  print("checked for all samples")
+checked_file_list <- list()
+for (i in 1:Nsample){
+  #i = 12
+  sample_name <- sample_name_list[[i]]
+  check_file <- cell_line_result_list[[sample_name]]
+  checked_file_list[[sample_name]] <- check_parent_node(check_file)
+  pass_decontaminate_statistics$final_result[i] <- length(which(checked_file_list[[sample_name]]$pass_check == T))
+  checked_file_list[[sample_name]] <- checked_file_list[[sample_name]][checked_file_list[[sample_name]]$pass_check == T,1:9]
+  write.table(checked_file_list[[sample_name]],
+              paste0(output_sample_result,"/",sample_name,'_filted.kreport'),quote = F,row.names = F,sep = '\t')
 }
+
+write.table(pass_decontaminate_statistics,paste0(output_path,"/",study,"/decontamination_statistic.txt"),sep = '\t',quote = F)
+  
 
 print("finish analysing!")
 
