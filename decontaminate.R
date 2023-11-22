@@ -268,7 +268,7 @@ for (i in 1:Nsample){
   #i = 12
   sample_name <- sample_name_list[[i]]
   check_file <- cell_line_result_list[[sample_name]]
-  checked_file_list[[sample_name]] <- check_parent_node(check_file)
+  checked_file_list[[sample_name]] <- check_parent_node(check_file,parent_mapping)
   pass_decontaminate_statistics$final_result[i] <- length(which(checked_file_list[[sample_name]]$pass_check == T))
   checked_file_list[[sample_name]] <- checked_file_list[[sample_name]][checked_file_list[[sample_name]]$pass_check == T,1:9]
   write.table(checked_file_list[[sample_name]],
@@ -277,7 +277,4 @@ for (i in 1:Nsample){
 
 write.table(pass_decontaminate_statistics,paste0(output_path,"/",study,"/decontamination_statistic.txt"),sep = '\t',quote = F)
   
-
 print("finish analysing!")
-
-
