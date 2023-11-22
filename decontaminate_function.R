@@ -144,7 +144,7 @@ correlation_plot <- function(correlation_filter_result =correlation_filted_resul
   plot <- ggplot(correlation_filter_result, aes_string(-log2(as.numeric((correlation_filter_result[[col1]]))+0.00001), 
                                                        -log2(as.numeric((correlation_filter_result[[col2]]))+0.00001),
                                                        color = "color_group")) +
-    #geom_density_2d(size = 0.75, color = "blue") + 
+    geom_density_2d(size = 0.75, color = "blue") + 
     geom_point(size = 1.5,alpha = 0.7) +
     geom_vline(xintercept = 2.995732, color = "red", linetype = "dashed") +
     geom_hline(yintercept = 2.995732, color = "red", linetype = "dashed") +
@@ -251,15 +251,33 @@ read_raw_kreport = function(kreport_path){
 }
 
 #函数描述：
-##检查删除完之后剩余物种的父节点是否存在，如果不存在在后续bracken定量的时候会报错。
+##检查删除完之后剩余物种的所有父节点是否存在，如果不存在在后续bracken定量的时候会报错。
 #参数：
 ##cell_line_result - 09文件夹里的结果文件，以样本为单位的。
 #返回值：
 ##新增列，如果是F则代表有问题，如果是T则是无问题
-check_parent_node = function(check_file){
-  checked_file <- check_file %>% 
-    mutate(pass_check = ifelse(parent_mapping[as.character(taxID)] %in% check_file$taxID,T,F) )
-  checked_file$pass_check[1:2] <- T
-   return(checked_file)
-}
+check_parent_node = function(check_file,parent_mapping){
+  for (n in nrow(check_file):1){
+    #n = nrow(check_file)
+    child_id <- check_file$taxID[[n]]
+    parent_id <- parent_mapping[as.character(child_id)]
+    while (child_id != 1){
+     # print(paste0("child_id is ",child_id))
+     # print(parent_id)
+      parent_row <- which(check_file$taxID == parent_id)
+     # print(parent_row)
+      if (length(parent_row) == 0){
+        check_file$pass_check[n] <- FALSE
+        break
+      } else {
+        check_file$pass_check[n] <- TRUE
+        child_id <- parent_id
+        parent_id <- parent_mapping[as.character(child_id)]
+      }
+    }
+  }
+  check_file$pass_check[1:2] <- TRUE
+  return(check_file)
+  }
+
 
